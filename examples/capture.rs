@@ -3,9 +3,9 @@ fn main() {
 
     camera
         .start(&rscam::Config {
-            interval: (1, 10),
-            resolution: (1280, 720),
-            format: b"YUYV",
+            interval: (1, 300),
+            resolution: (256, 144),
+            format: b"Z16 ",
             ..Default::default()
         })
         .unwrap();
