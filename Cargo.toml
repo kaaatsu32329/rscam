@@ -8,11 +8,11 @@ repository = "https://github.com/loyd/rscam"
 documentation = "https://docs.rs/rscam"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 libc = "0.2"
-thiserror = "1.0.9"
+thiserror = "1.0"
 
 [features]
 no_wrapper = []

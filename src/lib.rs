@@ -154,7 +154,7 @@ impl fmt::Debug for ResolutionInfo {
             ResolutionInfo::Discretes(ref d) => {
                 write!(f, "Discretes: {}x{}", d[0].0, d[0].1)?;
 
-                for res in (&d[1..]).iter() {
+                for res in d[1..].iter() {
                     write!(f, ", {}x{}", res.0, res.1)?;
                 }
 
@@ -184,7 +184,7 @@ impl fmt::Debug for IntervalInfo {
             IntervalInfo::Discretes(ref d) => {
                 write!(f, "Discretes: {}fps", d[0].1 / d[0].0)?;
 
-                for res in (&d[1..]).iter() {
+                for res in d[1..].iter() {
                     write!(f, ", {}fps", res.1 / res.0)?;
                 }
 
@@ -357,7 +357,7 @@ impl Camera {
     pub fn controls_by_class(&self, class: u32) -> ControlIter<'_> {
         ControlIter {
             camera: self,
-            id: class as u32,
+            id: class,
             class,
         }
     }
@@ -450,7 +450,7 @@ impl Camera {
         let mut qmenu = v4l2::QueryMenu::new(id);
 
         for index in min..=max {
-            qmenu.index = index as u32;
+            qmenu.index = index;
 
             if v4l2::xioctl_valid(self.fd, v4l2::VIDIOC_QUERYMENU, &mut qmenu)? {
                 items.push(CtrlMenuItem {
@@ -468,7 +468,7 @@ impl Camera {
         let mut qmenu = v4l2::QueryMenu::new(id);
 
         for index in min..=max {
-            qmenu.index = index as u32;
+            qmenu.index = index;
 
             if v4l2::xioctl_valid(self.fd, v4l2::VIDIOC_QUERYMENU, &mut qmenu)? {
                 items.push(CtrlIntMenuItem {
@@ -569,7 +569,7 @@ impl Camera {
 
     fn tune_format(&self, resolution: (u32, u32), format: [u8; 4], field: u32) -> Result<()> {
         let fourcc = FormatInfo::fourcc(format);
-        let mut fmt = v4l2::Format::new(resolution, fourcc, field as u32);
+        let mut fmt = v4l2::Format::new(resolution, fourcc, field);
 
         v4l2::xioctl(self.fd, v4l2::VIDIOC_S_FMT, &mut fmt)?;
 
@@ -581,7 +581,7 @@ impl Camera {
             return Err(Error::BadFormat);
         }
 
-        if field as u32 != fmt.fmt.field {
+        if field != fmt.fmt.field {
             return Err(Error::BadField);
         }
 
@@ -659,7 +659,7 @@ pub struct FormatIter<'a> {
     index: u32,
 }
 
-impl<'a> Iterator for FormatIter<'a> {
+impl Iterator for FormatIter<'_> {
     type Item = io::Result<FormatInfo>;
 
     fn next(&mut self) -> Option<io::Result<FormatInfo>> {
@@ -687,12 +687,12 @@ pub struct ControlIter<'a> {
     class: u32,
 }
 
-impl<'a> Iterator for ControlIter<'a> {
+impl Iterator for ControlIter<'_> {
     type Item = io::Result<Control>;
 
     fn next(&mut self) -> Option<io::Result<Control>> {
         match self.camera.get_control(self.id | v4l2::NEXT_CTRL) {
-            Ok(ref ctrl) if self.class > 0 && ctrl.id & v4l2::ID2CLASS != self.class as u32 => None,
+            Ok(ref ctrl) if self.class > 0 && ctrl.id & v4l2::ID2CLASS != self.class => None,
             Err(ref err) if err.kind() == io::ErrorKind::InvalidInput => None,
             Ok(ctrl) => {
                 self.id = ctrl.id;
@@ -731,7 +731,7 @@ impl Settable for bool {
     }
 }
 
-impl<'a> Settable for &'a str {
+impl Settable for &str {
     fn unify(&self) -> i64 {
         self.as_ptr() as i64
     }

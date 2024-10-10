@@ -1,9 +1,10 @@
 #![allow(clippy::unreadable_literal)]
+#![allow(clippy::too_long_first_doc_paragraph)]
 
 use std::ffi::CString;
 use std::os::unix::io::RawFd;
 use std::ptr::null_mut;
-use std::{io, mem, usize};
+use std::{io, mem};
 
 // C types and constants.
 use libc::timeval as Timeval;
@@ -490,7 +491,7 @@ pub struct ExtControls<'a> {
     pub controls: &'a mut ExtControl,
 }
 
-impl<'a> ExtControls<'a> {
+impl ExtControls<'_> {
     pub fn new(class: u32, ctrl: &mut ExtControl) -> ExtControls<'_> {
         ExtControls {
             ctrl_class: class,
