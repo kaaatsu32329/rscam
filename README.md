@@ -8,6 +8,12 @@
 Consider to use [https://github.com/raymanfx/libv4l-rs](libv4l-rs) or something else.
 If you would be interested in taking over some of the maintenance of the project, please let me know.
 
+## Required
+
+```bash
+sudo apt install libv4l-dev
+```
+
 ## Overview
 
 Rust wrapper for v4l2.
